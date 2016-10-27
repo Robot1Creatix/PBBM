@@ -8,6 +8,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class FileUtils
 {
@@ -154,5 +157,21 @@ public class FileUtils
 		fw.write(sb.toString());
 		fw.close();
 		return ret;
+	}
+	
+	public static void forEachFileInDir(File dir, Consumer<File> action)
+	{
+		List<File> files = Arrays.asList(dir.listFiles());
+		for (File f : files)
+		{
+			if (f.isDirectory())
+			{
+				forEachFileInDir(f, action);
+			}
+			else
+			{
+				action.accept(f);
+			}
+		}
 	}
 }

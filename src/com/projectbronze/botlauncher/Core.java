@@ -12,8 +12,8 @@ public class Core
 	public static LogStream log, err;
 	public static File jarDir;
 	public static void main(String[] args) throws IOException
-	{
-		String s = Core.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	{ 
+		String s = Core.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", "\\ ");
 		if(s.endsWith(".jar"))
 		{
 			s = s.substring(0, s.lastIndexOf('/'));
@@ -27,7 +27,15 @@ public class Core
 		{
 			if(bot.exists())
 			{
-				BotLauncher.launchBot(new File(new File("").getAbsolutePath()));
+				try
+				{
+					BotLauncher.launchBot(new File(new File("").getAbsolutePath()));
+				}
+				catch (ReflectiveOperationException e)
+				{
+					err.error("Unable to load bot");
+					e.printStackTrace(err);
+				}
 			}
 			else
 			{
