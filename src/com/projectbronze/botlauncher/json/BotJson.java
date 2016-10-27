@@ -22,8 +22,8 @@ public class BotJson
 	private static final String NAME = "name";
 	private static final String AUTHOR = "author";
 	private static final String MAIN_CLASS = "main_class";
-	private static final String USE_JDAE = "use_jdae";
 	private static final String MODE = "mode";
+	private static final String PATH = "path";
 	private static final String AUTO_RESTART = "auto_restart";
 	private JsonObject json;
 
@@ -53,14 +53,14 @@ public class BotJson
 		return json.get(MAIN_CLASS).getAsString();
 	}
 
-	public boolean getUseJDAEnchacer()
-	{
-		return json.get(USE_JDAE).getAsBoolean();
-	}
-
 	public Mode getMode()
 	{
 		return Mode.valueOf(json.get(MODE).getAsString());
+	}
+	
+	public String getPath()
+	{
+		return json.get(PATH).getAsString();
 	}
 
 	public boolean getAutoRestart()
@@ -82,10 +82,10 @@ public class BotJson
 		String name = initName(console);
 		String author = initAuthor(console);
 		String mainClass = initMainClass(console, name, author);
-		boolean useJDAE = initJDAE(console);
 		Mode mode = initMode(console);
+		String path = initPath(console, mode);
 		boolean autoRestart = initAutoRestart(console);
-		create(name, author, mainClass, useJDAE, mode, autoRestart);
+		create(name, author, mainClass, mode, path, autoRestart);
 		console.close();
 	}
 
@@ -114,13 +114,6 @@ public class BotJson
 		return clazz.equals("") ? suggestedClass : clazz;
 	}
 
-	private static Boolean initJDAE(BufferedReader console) throws IOException
-	{
-		System.out.print("Use JDA Enchacer (true|y|yes): ");
-		String use = console.readLine();
-		return use.equals("") ? true : (use == "true" || use == "y" || use == "yes");
-	}
-
 	private static Mode initMode(BufferedReader console) throws IOException
 	{
 		Mode mode = null;
@@ -139,6 +132,34 @@ public class BotJson
 		}
 		return mode;
 	}
+	
+	private static String initPath(BufferedReader console, Mode mode) throws IOException
+	{
+		String def = "";
+		switch (mode)
+		{
+			case SRC:
+			{
+				System.out.print("Enter source dir [separate by ;] (src): ");
+				def = "src";
+				break;
+			}
+			case CLASS:
+			{
+				System.out.print("Enter dir containig classes (bin): ");
+				def = "bin";
+				break;
+			}
+			case JAR:
+			{	
+				System.out.print("Enter path to jar file (Bot.jar): ");
+				def = "Bot.jar";
+				break;
+			}
+		}
+		String path = console.readLine();
+		return path.equals("") ? def : path;
+	}
 
 	private static boolean initAutoRestart(BufferedReader console) throws IOException
 	{
@@ -147,24 +168,24 @@ public class BotJson
 		return use.equals("") ? true : (use == "true" || use == "y" || use == "yes");
 	}
 
-	public static File create(String name, String author, String mainclass, boolean useJDAE, Mode mode, boolean autoRestart) throws IOException
+	public static File create(String name, String author, String mainclass, Mode mode, String path, boolean autoRestart) throws IOException
 	{
 		File json = new File("bot.json");
 		json.createNewFile();
 		FileWriter w = new FileWriter(json);
-		w.write(createJson(name, author, mainclass, useJDAE, mode, autoRestart));
+		w.write(createJson(name, author, mainclass, mode, path, autoRestart));
 		w.close();
 		return json;
 	}
 
-	private static String createJson(String name, String author, String mainclass, boolean useJDAE, Mode mode, boolean autoRestart)
+	private static String createJson(String name, String author, String mainclass, Mode mode, String path, boolean autoRestart)
 	{
 		JsonObject root = new JsonObject();
 		root.addProperty(NAME, name);
 		root.addProperty(AUTHOR, author);
 		root.addProperty(MAIN_CLASS, mainclass);
-		root.addProperty(USE_JDAE, useJDAE);
 		root.addProperty(MODE, mode.toString());
+		root.addProperty(PATH, path);
 		root.addProperty(AUTO_RESTART, autoRestart);
 		return new GsonBuilder().setPrettyPrinting().create().toJson(root);
 	}

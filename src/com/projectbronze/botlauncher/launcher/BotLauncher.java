@@ -35,16 +35,13 @@ public class BotLauncher
 		{
 			case SRC:
 			{
+			
 				break;
 			}
 			case CLASS:
-			{
-				addFileToLoader(new File(dir, "bin"));
-				break;
-			}
 			case JAR:
 			{
-				addFileToLoader(new File(dir, "Bot.jar"));
+				addFileToLoader(new File(dir, bot.getPath()));
 			}
 		}
 		IBot ret = launch(bot);
