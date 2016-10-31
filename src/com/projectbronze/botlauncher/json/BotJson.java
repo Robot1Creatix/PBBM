@@ -67,6 +67,12 @@ public class BotJson
 	{
 		return json.get(AUTO_RESTART).getAsBoolean();
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getName();
+	}
 
 	//================
 	//     Static     
@@ -170,7 +176,12 @@ public class BotJson
 
 	public static File create(String name, String author, String mainclass, Mode mode, String path, boolean autoRestart) throws IOException
 	{
-		File json = new File("bot.json");
+		return create(new File(""), name, author, mainclass, mode, path, autoRestart);
+	}
+	
+	public static File create(File dir, String name, String author, String mainclass, Mode mode, String path, boolean autoRestart) throws IOException
+	{
+		File json = new File(dir, "bot.json");
 		json.createNewFile();
 		FileWriter w = new FileWriter(json);
 		w.write(createJson(name, author, mainclass, mode, path, autoRestart));

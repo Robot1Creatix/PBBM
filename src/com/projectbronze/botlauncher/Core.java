@@ -2,7 +2,11 @@ package com.projectbronze.botlauncher;
 
 import java.io.File;
 import java.io.IOException;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import com.projectbronze.botlauncher.config.Config;
+import com.projectbronze.botlauncher.gui.MainFrame;
 import com.projectbronze.botlauncher.json.BotJson;
 import com.projectbronze.botlauncher.launcher.BotLauncher;
 import com.projectbronze.botlauncher.log.LogStream;
@@ -75,6 +79,27 @@ public class Core
 					{
 						err.error("Unable to find bot.json, use `init` command");
 					}
+					break;
+				}
+				case "gui":
+				{
+					try
+					{
+						UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+					}
+					catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
+					{
+						e.printStackTrace();
+						try
+						{
+							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+						}
+						catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1)
+						{
+							e1.printStackTrace();
+						}
+					}
+					SwingUtilities.invokeLater(MainFrame::new);
 				}
 			}
 		}

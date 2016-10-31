@@ -42,6 +42,7 @@ public class BotLauncher
 			case JAR:
 			{
 				addFileToLoader(new File(dir, bot.getPath()));
+				System.out.println(Arrays.toString(loader.getURLs()));
 			}
 		}
 		IBot ret = launch(bot);
