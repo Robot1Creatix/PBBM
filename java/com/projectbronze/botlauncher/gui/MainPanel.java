@@ -23,19 +23,17 @@ import com.projectbronze.botlauncher.utils.TextAreaPrintStream;
 
 public class MainPanel extends PanelBase {
 	public JComboBox<BotJson> botSelector;
-	public JButton addBot;
-	public JButton initBot;
-	public JButton launchBot;
-	public JButton addBotToDefault;
+	public JButton addBot, initBot, launchBot, addBotToDefault, restartBot;
 	public JFileChooser botChooser;
 	public JTextArea console;
 	public BotInfo botInfo;
-	public HashMap<BotJson, JTextArea> consoleMap = new HashMap<>();
-	private static class BotMapVal
-	{
+	public HashMap<BotJson, BotMapVal> botMap = new HashMap<>();
+
+	public static class BotMapVal {
 		public JTextArea console;
 		public IBot bot;
 	}
+
 	public MainPanel() {
 		super();
 		initComponents();
@@ -51,23 +49,19 @@ public class MainPanel extends PanelBase {
 		add(initBot = new JButton("Создать бота"), 0, 2);
 		add(addBotToDefault = new JButton("Добавить бота к стандартным"), 2, 2);
 		add(launchBot = new JButton("Запустить бота"), 1, 2);
+		add(restartBot = new JButton("Перезапустить бота"), 1, 3);
 		botChooser = new JFileChooser(new File("."));
-		
+
 	}
 
 	private void initListners() {
 		addBotToDefault.addActionListener(e -> {
 			BotJson bot = (BotJson) botSelector.getSelectedItem();
-			if(bot == null)
-			{
+			if (bot == null) {
 				console.append("Бот не выбран");
-			}
-			else if(Config.guiDefaultBots.contains(bot.file))
-			{
+			} else if (Config.guiDefaultBots.contains(bot.file)) {
 				console.append("Бот уже добавлен");
-			}
-			else
-			{
+			} else {
 				Config.guiDefaultBots.add(bot);
 				Config.save();
 				console.append("Бот добавлен");
@@ -104,14 +98,16 @@ public class MainPanel extends PanelBase {
 			if (console != null) {
 				remove(console);
 			}
-			if (!consoleMap.containsKey(bot)) {
+			if (!botMap.containsKey(bot)) {
 				JTextArea c = new JTextArea(20, 80);
 				c.setFont(new Font("Roboto Medium", Font.PLAIN, 15));
 				c.setMinimumSize(new Dimension(400, 400));
-				consoleMap.put(bot, c);
+				BotMapVal b = new BotMapVal();
+				b.console = c;
+				botMap.put(bot, b);
 				console = c;
 			} else {
-				console = consoleMap.get(bot);
+				console = botMap.get(bot).console;
 			}
 			add(console, 2, 1);
 		});
@@ -124,32 +120,76 @@ public class MainPanel extends PanelBase {
 		});
 		launchBot.addActionListener(e -> {
 			if (botSelector.getSelectedItem() != null) {
-				BotJson bot = (BotJson) botSelector.getSelectedItem();
-				File dir = bot.file.getParentFile();
-				try {
-					BotLauncher.launchBot(dir, new TextAreaPrintStream(console));
 
-				} catch (ClassNotFoundException e1) {
-					console.append("Невозможно найти класс " + bot.getMainClass() + "\n");
-				} catch (InstantiationException | NoSuchMethodException e1) {
-					console.append("Главный класс бота не должен иметь конструктора или он должен быть без параметров\n");
-				} catch (IllegalArgumentException e1) {
-					console.append("Главный класс бота должен быть наследником IBot\n");
-				} catch (InvocationTargetException e1) {
-					console.append("Конструктор бота выдал исключение: " + e1.getTargetException().getMessage() + "\n");
-				} catch (SecurityException e1) {
-					console.append("Не удалось получить доступ к конструктору бота\n");
-				} catch (IOException e1) {
-					console.append("Что-то не пошло не так с загрузкой бота: " + e1.getMessage() + "\n");
+				BotJson bot = (BotJson) botSelector.getSelectedItem();
+				BotMapVal b = botMap.get(bot);
+				if (b.bot == null) {
+					startBot(bot, b);
+				}
+				else
+				{
+					stopBot(bot, b, false);
 				}
 			}
 		});
+		restartBot.addActionListener(e -> {
+			BotJson bot = (BotJson) botSelector.getSelectedItem();
+			BotMapVal b = botMap.get(bot);
+			if(b.bot == null)
+			{
+				startBot(bot, b);
+			}
+			else
+			{
+				stopBot(bot, b, false);
+				startBot(bot, b);
+			}
+		});
+	}
+	
+	private void startBot(BotJson bot, BotMapVal info)
+	{
+		if(info.console != null)
+		{
+			info.console.setText("");
+		}
+		File dir = bot.file.getParentFile();
+		try {
+			info.bot = BotLauncher.launchBot(dir, new TextAreaPrintStream(console));
+			launchBot.setText("Остановить бота");
+			restartBot.setVisible(true);
+		} catch (ClassNotFoundException e1) {
+			console.append("Невозможно найти класс " + bot.getMainClass() + "\n");
+		} catch (InstantiationException | NoSuchMethodException e1) {
+			console.append("Главный класс бота не должен иметь конструктора или он должен быть без параметров\n");
+		} catch (IllegalArgumentException e1) {
+			console.append("Главный класс бота должен быть наследником IBot\n");
+		} catch (InvocationTargetException e1) {
+			console.append("Конструктор бота выдал исключение: " + e1.getTargetException().getMessage() + "\n");
+		} catch (SecurityException e1) {
+			console.append("Не удалось получить доступ к конструктору бота\n");
+		} catch (IOException e1) {
+			console.append("Что-то не пошло не так с загрузкой бота: " + e1.getMessage() + "\n");
+		}
 	}
 
+	private void stopBot(BotJson bot, BotMapVal info, boolean free)
+	{
+		info.bot.stop(free);
+		console.append("Бот остановлен");
+		launchBot.setText("Запустить бота");
+		restartBot.setVisible(false);
+		info.bot = null;
+	}
+	
 	private void initMisc() {
 		console.setFont(new Font("Roboto Medium", Font.PLAIN, 15));
 		console.setMinimumSize(new Dimension(400, 400));
+		console.setEditable(false);
 		botSelector.setMinimumSize(new Dimension(200, 30));
-		botSelector.setSelectedIndex(0);//To perform listners actions
+		restartBot.setVisible(false);
+		if(botSelector.getItemCount() != 0)
+		botSelector.setSelectedIndex(0);// To perform listners actions
 	}
+	
 }
