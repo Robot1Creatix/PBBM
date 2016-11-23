@@ -18,6 +18,7 @@ import com.projectbronze.botlauncher.utils.FileUtils;
 public class Config {
 	public static String startUpBotDirectory, libsDirectory;
 	public static boolean debugMode;
+	public static int socketPort;
 	public static Set<BotJson> guiDefaultBots;
 
 	public static void init() {
@@ -44,6 +45,7 @@ public class Config {
 			startUpBotDirectory = main.get("defaultBotDir").getAsString();
 			libsDirectory = main.get("libsDir").getAsString();
 			debugMode = main.get("debug").getAsBoolean();
+			socketPort = main.get("socketPort").getAsInt();
 			String defaultBots = gui.get("defaultBots").getAsString();
 			if (!defaultBots.equals("")) {
 				guiDefaultBots = Arrays.stream(defaultBots.split(";")).map(s -> {
@@ -86,6 +88,7 @@ public class Config {
 		main.addProperty("defaultBotDir", startUpBotDirectory);
 		main.addProperty("libsDir", libsDirectory);
 		main.addProperty("debug", debugMode);
+		main.addProperty("socketPort", socketPort);
 		gui.addProperty("defaultBots", guiDefaultBots.parallelStream().map(f -> f == null ? null : f.file.getAbsolutePath()).reduce((s1, s2) -> s1 += s2 == null ? "" : (";" + s2)).orElse(""));
 		return root;
 	}

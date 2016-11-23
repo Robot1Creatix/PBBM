@@ -33,6 +33,7 @@ tasks.withType(Jar) {
 sourceSets {
     main {
         java { srcDirs = ["$projectDir/src"] }\
+		resources { srcDirs = ["$projectDir/resources"] }
     }
 }
 

@@ -16,6 +16,8 @@ import com.projectbronze.botlauncher.json.BotJson;
 import com.projectbronze.botlauncher.json.Config;
 import com.projectbronze.botlauncher.launcher.BotLauncher;
 import com.projectbronze.botlauncher.log.LogStream;
+import com.projectbronze.botlauncher.nogui.NoGuiManager;
+import com.projectbronze.botlauncher.nogui.SocketNoGuiHandler;
 
 public class Core
 {
@@ -107,6 +109,12 @@ public class Core
 					}
 					GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(Font.createFont(Font.TRUETYPE_FONT, Core.class.getResourceAsStream("/Roboto-Medium.ttf")));
 					SwingUtilities.invokeLater(MainFrame::new);
+					break;
+				}
+				case "socket":
+				{
+					new NoGuiManager(new SocketNoGuiHandler()).start();
+					break;
 				}
 			}
 		}

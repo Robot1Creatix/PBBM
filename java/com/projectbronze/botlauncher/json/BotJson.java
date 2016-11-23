@@ -71,6 +71,10 @@ public class BotJson
 		return json.get(AUTO_RESTART).getAsBoolean();
 	}
 	
+	public JsonObject getJson() {
+		return json;
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -102,7 +106,7 @@ public class BotJson
 	{
 		String curDir = new File("").getAbsolutePath();
 		curDir = curDir.substring(curDir.lastIndexOf(File.separatorChar) + 1);
-		System.out.printf("Bot name (%s): ", curDir);
+		System.out.print(String.format("Bot name (%s): ", curDir));
 		String name = console.readLine();
 		return name.equals("") ? curDir : name;
 	}
@@ -110,7 +114,7 @@ public class BotJson
 	private static String initAuthor(BufferedReader console) throws IOException
 	{
 		String curUser = System.getProperty("user.name");
-		System.out.printf("Author name (%s): ", curUser);
+		System.out.print(String.format("Author name (%s): ", curUser));
 		String author = console.readLine();
 		return author.equals("") ? curUser : author;
 	}
@@ -118,7 +122,7 @@ public class BotJson
 	private static String initMainClass(BufferedReader console, String name, String author) throws IOException
 	{
 		String suggestedClass = String.format("com.%s.%s.Core", author, name);
-		System.out.printf("Main class (%s): ", suggestedClass);
+		System.out.print(String.format("Main class (%s): ", suggestedClass));
 		String clazz = console.readLine();
 		return clazz.equals("") ? suggestedClass : clazz;
 	}
