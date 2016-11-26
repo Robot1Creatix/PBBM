@@ -20,7 +20,7 @@ public class NoGuiManager extends Thread {
 	public static final String UNABLE_TO_PARSE = "UNABLE_TO_PARSE", UNKNOWN_COMMAND = "UNKNOW_COMMAND", NOT_ENOUGH_ARGS = "NOT_ENOUGH_ARGS";
 	public static final String DIR_NOT_EXITST = "NOT_EXIST", NOT_DIR = "NOT_DIR", BOT_NOT_FOUND = "NOT_FOUND", BOT_DIR_NOT_SETED = "DIR_NOT_SETED";
 	public static final String BOT_ALREADY_STARTED = "ALREADY_STARTED", BOT_NOT_STARTED = "NOT_STARTED";
-	public static final String START_BOT = "START", STOP_BOT = "STOP", RESTART_BOT = "RESTART", GET_BOT_STATE = "GET_STATE", SET_BOT_DIR = "SET_DIR", GET_BOT_DIR = "GET_DIR", GET_BOT_JSON = "GET_JSON", STOP_MANAGER = "STOP_MANAGER";
+	public static final String START_BOT = "START", STOP_BOT = "STOP", RESTART_BOT = "RESTART", GET_BOT_STATE = "GET_STATE", SET_BOT_DIR = "SET_DIR", GET_BOT_DIR = "GET_DIR", GET_BOT_JSON = "GET_JSON", STOP_MANAGER = "STOP_MANAGER", GET_USED_MEMORY = "GET_USED_MEMORY";
 
 	private final INoGuiHandler handler;
 	private IBot bot;
@@ -131,6 +131,12 @@ public class NoGuiManager extends Thread {
 						case GET_BOT_STATE:
 						{
 							handler.writeLine(state.name());
+							break;
+						}
+						case GET_USED_MEMORY:
+						{
+							Runtime r = Runtime.getRuntime();
+							handler.writeLine(r.totalMemory() - r.freeMemory() / 1048567 + "");
 							break;
 						}
 						default: {

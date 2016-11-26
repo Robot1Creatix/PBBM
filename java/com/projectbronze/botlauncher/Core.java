@@ -19,16 +19,14 @@ import com.projectbronze.botlauncher.log.LogStream;
 import com.projectbronze.botlauncher.nogui.NoGuiManager;
 import com.projectbronze.botlauncher.nogui.SocketNoGuiHandler;
 
-public class Core
-{
+public class Core {
 	public static LogStream log, err;
 	public static File jarDir;
 	public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-	public static void main(String[] args) throws IOException, FontFormatException
-	{ 
+
+	public static void main(String[] args) throws IOException, FontFormatException {
 		String s = Core.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", "\\ ");
-		if(s.endsWith(".jar"))
-		{
+		if (s.endsWith(".jar")) {
 			s = s.substring(0, s.lastIndexOf('/'));
 		}
 		jarDir = new File(s);
@@ -36,74 +34,60 @@ public class Core
 		err = new LogStream(System.err);
 		Config.init();
 		File bot = new File("bot.json");
-		if(args.length == 0)
-		{
-			if(bot.exists())
-			{
-				try
-				{
+		if (args.length == 0) {
+			if (bot.exists()) {
+				try {
 					BotLauncher.launchBot(new File(new File("").getAbsolutePath()), log);
-				}
-				catch (ReflectiveOperationException e)
-				{
+				} catch (ReflectiveOperationException e) {
 					err.error("Unable to load bot");
 					e.printStackTrace(err);
 				}
-			}
-			else
-			{
+			} else {
 				err.error("Unable to find bot.json");
 			}
-		}
-		else
-		{
-			switch(args[0])
-			{
+		} else {
+			switch (args[0]) {
 				case "autorun":
-				case "auto":
-				{
-					if(Config.startUpBotDirectory.equals("NONE"))
-					{
+				case "auto": {
+					if (Config.startUpBotDirectory.equals("NONE")) {
 						err.error("Autorun bot not specified");
-					}
-					else
-					{
-						
+					} else {
+						File botdir = new File(Config.startUpBotDirectory);
+						bot = new File(botdir, "bot.json");
+						if (bot.exists()) {
+							try {
+								BotLauncher.launchBot(botdir, log);
+							} catch (ReflectiveOperationException e) {
+								err.error("Unable to load bot");
+								e.printStackTrace(err);
+							}
+						} else {
+							err.error("Bot not found in autorun dir %s", botdir.getAbsolutePath());
+						}
 					}
 					break;
 				}
-				case "init":
-				{
+				case "init": {
 					BotJson.init();
 					break;
 				}
-				case "setAuto":
-				{
-					if(bot.exists())
-					{
+				case "setAuto": {
+					if (bot.exists()) {
 						Config.startUpBotDirectory = new File("").getAbsolutePath();
 						Config.save();
-					}
-					else
-					{
+						log.info("Autorun bot setted");
+					} else {
 						err.error("Unable to find bot.json, use `init` command");
 					}
 					break;
 				}
-				case "gui":
-				{
-					try
-					{
+				case "gui": {
+					try {
 						UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-					}
-					catch (Exception e)
-					{
-						try
-						{
+					} catch (Exception e) {
+						try {
 							UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-						}
-						catch (Exception e1)
-						{
+						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
 					}
@@ -111,8 +95,7 @@ public class Core
 					SwingUtilities.invokeLater(MainFrame::new);
 					break;
 				}
-				case "socket":
-				{
+				case "socket": {
 					new NoGuiManager(new SocketNoGuiHandler()).start();
 					break;
 				}

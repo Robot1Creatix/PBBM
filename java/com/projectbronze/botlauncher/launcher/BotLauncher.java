@@ -29,7 +29,7 @@ public class BotLauncher {
 		BotJson bot = new BotJson(botFile);
 		switch (bot.getMode()) {
 			case SRC: {
-
+				//NO-OP
 				break;
 			}
 			case CLASS:
@@ -83,8 +83,13 @@ public class BotLauncher {
 		}
 	}
 
-	public static void addLibs() {
-		addFilesToLoader(new File(Config.libsDirectory).listFiles());
+	public static void addLibs() throws IOException {
+		File libs = new File(Config.libsDirectory);
+		if(!libs.exists())
+		{
+			libs.mkdirs();
+		}
+		addFilesToLoader(libs.listFiles());
 	}
 
 	private static IBot launch(BotJson bot, PrintStream info) throws ClassNotFoundException, InstantiationException, IllegalArgumentException, NoSuchMethodException, SecurityException, InvocationTargetException {
